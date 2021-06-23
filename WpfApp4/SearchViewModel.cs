@@ -1,12 +1,8 @@
 ﻿using Prism.Commands;
-using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.DirectoryServices;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -25,7 +21,6 @@ namespace WpfApp4
             await Task.Delay(5000, token);
             return new() { "frist", "second" };
         }
-        
     }
 
     public class SearchViewModel : INotifyPropertyChanged
@@ -36,16 +31,16 @@ namespace WpfApp4
         }
         private CancellationTokenSource cts = new();
         private SearchRepository _repository;
+
+
+        private bool FirstSearchDone;
+
+        private void OnIsSearchingChanged() => RaisePropertyChanged(SearchButtonText);
+        public string SearchButtonText => IsExecuting ? "Cancel" : "Search";
+        public bool IsSearching { get; private set; }
         public bool IsExecuting { get; set; }
         public SearchOptions SelectedSearchOptions { get; set; }
         public List<string> SearchResults { get; private set; } = new();
-        bool FirstSearchDone = false;
-
-        private void OnIsSearchingChanged() => RaisePropertyChanged(SearchButtonText);
-        [DoNotSetChanged]
-        public string SearchButtonText => IsExecuting ? "Cancel" : "Search";
-        [DoNotSetChanged]
-        public bool IsSearching { get; set; }
         private ICommand _searchCommand;
         public ICommand SearchCommand => _searchCommand ?? new DelegateCommand(async () => await SearchExecute());
         public async Task SearchExecute()
@@ -85,7 +80,7 @@ namespace WpfApp4
             }
         }
 
-        public void RaisePropertyChanged([CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        private void RaisePropertyChanged([CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         public event PropertyChangedEventHandler PropertyChanged;
     }
 }
